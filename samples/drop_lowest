@@ -1,0 +1,13 @@
+~ drop_lowest {
+    ~ helper {
+        rec = $1 > 0 ? ($1 - 1 @helper $2) : (0 | $2)
+        die = 1 # $2
+        [$rec + $die | ([$rec < $die ? [$rec : $die)
+    }
+    sign = $1 > 0 ? 1 : -1
+    first = $1 > 0 ? $1 : -$1
+    pair = $first @helper $2
+    $1 == 0 ? 0 : [$pair - $pair]
+}
+
+"example 20 @drop_lowest 100"

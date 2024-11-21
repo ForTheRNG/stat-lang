@@ -1,0 +1,13 @@
+~ exponential {
+    ~ helper {
+        $3 == 0 ?
+            $4 :
+            1 # $2 <= $1:
+                ($1 @ helper $2, $3 - 1, $4 + 1) :
+                $4
+    }
+    $1 @helper $2, $3, 1
+}
+
+"last parameter is a limit on the distribution size"
+"example: 1 @exponential 2 1000 - an exponential distribution with chance 1/2 capped at 1000 entries"
