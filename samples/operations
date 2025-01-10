@@ -5,15 +5,23 @@ grandchild = child_2 - child_1
 "Unless progenitor detection is used, the above statements would trip the program."
 "The parent takes values 1-6 with equal probability. The children look as follows:
 C1 \ P | 1 | 2 | 3 | 4 | 5 |  6
+-------+---+---+---+---+---+----
  1     | 2 | 3 | 4 | 5 | 6 |  7
+-------+---+---+---+---+---+----
  2     | 3 | 4 | 5 | 6 | 7 |  8
+-------+---+---+---+---+---+----
  3     | 4 | 5 | 6 | 7 | 8 |  9
+-------+---+---+---+---+---+----
  4     | 5 | 6 | 7 | 8 | 9 | 10
 
 C2 \ P | 1 | 2 |  3 |  4 |  5 |  6
+-------+---+---+----+----+----+----
  1     | 1 | 2 |  3 |  4 |  5 |  6
+-------+---+---+----+----+----+----
  2     | 2 | 4 |  6 |  8 | 10 | 12
+-------+---+---+----+----+----+----
  3     | 3 | 6 |  9 | 12 | 15 | 21
+-------+---+---+----+----+----+----
  4     | 4 | 8 | 12 | 16 | 20 | 24
 The problem is as follows: if child_2 rolls a value of 12, there are 3 possible
 values for the parent: 3, 4, 6. In either case, child_1 cannot be 2 or 3. When
@@ -35,5 +43,5 @@ should accomodate that."
 
 split = 1 # 100 > 50 ? 0 : 1 # 50
 "Distributions will have large probability discrepancies, going from 0.5 to 0.02 or
-worse, to the point where floating-point operations will fail. As before, the program
+worse, to the point where floating-point operations can fail. As before, the program
 should accomodate."
