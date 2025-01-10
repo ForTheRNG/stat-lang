@@ -1,0 +1,9 @@
+~ poisson {
+    ~ helper {
+        $2 == 0 ? 0 : (1 # $1 == 1 ? 1 : 0) + ($1 @helper $2)
+    }
+    ($2 * $3) @helper ($1 * $3) 0
+}
+
+"last parameter is a limit on distribution size"
+"example: 7 @ poisson 5 20 - a Poisson distribution with expectation 1.4 going up to 140 events"

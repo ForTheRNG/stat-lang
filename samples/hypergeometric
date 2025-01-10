@@ -1,0 +1,7 @@
+~ hypergeometric {
+    is_green = 1 # $1 <= $2 ? 1 : 0
+    $3 == 0 ? 0 : $is_green + ($1 - 1 @hypergeometric $2 - $is_green $3 - 1)
+}
+
+"Creates a hyperbolic distribution"
+"Example: 500 @ hyperbolic 100 150 - sample a pot of 500 balls, 100 of which are green, 150 times; output is how many balls are green"
