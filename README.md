@@ -1,0 +1,2 @@
+## Contents
+In ```samples```, examples of usage can be found. Most will display construction of popular discrete distributions, but ```samples/operations``` presents some challenges the program must overcome.
