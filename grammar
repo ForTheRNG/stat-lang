@@ -46,8 +46,8 @@ Comparison ::= Addition == Addition
 Comparison ::= Addition != Addition
 
 # Addition & subtraction
-Addition ::= Multiplication + Addition
-Addition ::= Multiplication - Addition
+Addition ::= Addition + Multiplication
+Addition ::= Addition - Multiplication
 Addition ::= Multiplication
 
 # Multiplication, division & modulo
