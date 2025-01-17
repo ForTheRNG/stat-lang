@@ -20,7 +20,7 @@ FunctionParams ::= PairOperation
 # Pairs
 PairOperation ::= [ PairOperation
 PairOperation ::= PairOperation ]
-PairOperation ::= PairOperation | PairOperation
+PairOperation ::= PairOperation | TernaryOperation
 PairOperation ::= TernaryOperation
 
 # Ternary operator(s); need logical results to not propagate
@@ -31,11 +31,11 @@ TernaryOperation ::= Addition
 TernaryOperationLogical ::= TernaryOperationLogical ? TernaryOperationLogical : TernaryOperationLogical
 TernaryOperationLogical ::= Logical
 
-# Logical operations; TODO figure out how to not make this part redundant
-Logical ::= Logical && Logical
-Logical ::= Logical || Logical
-Logical ::= ! Logical
-Logical ::= Comparison
+# Logical operations
+Logical ::= Logical && LogicalTerm
+Logical ::= Logical || LogicalTerm
+LogicalTerm ::= ! LogicalTerm
+LogicalTerm ::= Comparison
 
 # Comparisons
 Comparison ::= Addition > Addition
