@@ -1,12 +1,16 @@
 Name ::= [A-Za-z_][A-Za-z_0-9]*
 Number ::= -?0|[1-9][0-9]*
+FunctionName ::= FunctionName . Name
+FunctionName ::= Name
 
+Namespace ::= ' < Name > ' Namespace
+Namespace ::= ' Name ' Namespace
 Namespace ::= ~ Name { Namespace } Namespace
 Namespace ::= Name = Expression Namespace
 Namespace ::= Expression
 
-Expression ::= @ Name FunctionParams
-Expression ::= ListOperation @ Name FunctionParams
+Expression ::= @ FunctionName FunctionParams
+Expression ::= ListOperation @ FunctionName FunctionParams
 FunctionParams ::= FunctionParams , ListOperation
 FunctionParams ::= ListOperation
 
@@ -15,7 +19,13 @@ ListOperation ::= ListOperation ]
 ListOperation ::= ListOperation | ListOperation
 ListOperation ::= TernaryOperation
 
-TernaryOperation ::= TernaryOperation ? TernaryOperation : TernaryOperation | Logical
+TernaryOperation ::= TernaryOperationLogical ? TernaryOperation : TernaryOperation
+TernaryOperation ::= TernaryOperationLogical ? Addition : Addition
+TernaryOperation ::= TernaryOperationLogical
+TernaryOperation ::= Addition
+
+TernaryOperationLogical ::= TernaryOperationLogical ? TernaryOperationLogical : TernaryOperationLogical
+TernaryOperationLogical ::= Logical
 
 Logical ::= Logical && Logical
 Logical ::= Logical || Logical
@@ -36,6 +46,7 @@ Addition ::= Multiplication
 Multiplication ::= Multiplication * DieRoll
 Multiplication ::= Multiplication / DieRoll
 Multiplication ::= Multiplication % DieRoll
+Multiplication ::= DieRoll
 
 DieRoll ::= DieRoll # Term
 DieRoll ::= Term
