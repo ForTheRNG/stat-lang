@@ -4,6 +4,7 @@ child_2 = parent * 1 # 4
 grandchild = child_2 - child_1
 "Unless progenitor detection is used, the above statements would trip the program."
 "The parent takes values 1-6 with equal probability. The children look as follows:
+
 C1 \ P | 1 | 2 | 3 | 4 | 5 |  6
 -------+---+---+---+---+---+----
  1     | 2 | 3 | 4 | 5 | 6 |  7
@@ -23,11 +24,13 @@ C2 \ P | 1 | 2 |  3 |  4 |  5 |  6
  3     | 3 | 6 |  9 | 12 | 15 | 21
 -------+---+---+----+----+----+----
  4     | 4 | 8 | 12 | 16 | 20 | 24
+
 The problem is as follows: if child_2 rolls a value of 12, there are 3 possible
 values for the parent: 3, 4, 6. In either case, child_1 cannot be 2 or 3. When
 performing analysis on the result of a series of operations, such diamond dependencies
 (and their bigger siblings, dependency graphs) must be accounted for. Therefore,
-variables in the middle of operations must keep track of progenitors and their values."
+variables in the middle of operations must keep track of progenitors and their values
+for each value they can take."
 
 hyperbolic = 1 # (1 # 100)
 "Uniform distribution generators should take random amounts as inputs, for better
@@ -41,7 +44,7 @@ fact = @factorial 3 # 3
 "Distributions can and will have large holes in them, or sparse values. The program
 should accomodate that."
 
-split = 1 # 100 > 50 ? 0 : 1 # 50
+split = 1 # 2 > 1 ? 0 : 1 # 50
 "Distributions will have large probability discrepancies, going from 0.5 to 0.02 or
 worse, to the point where floating-point operations can fail. As before, the program
 should accomodate."

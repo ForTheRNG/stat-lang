@@ -1,0 +1,50 @@
+Name ::= [A-Za-z_][A-Za-z_0-9]*
+Number ::= -?0|[1-9][0-9]*
+
+Namespace ::= ~ Name { Namespace } Namespace
+Namespace ::= Name = Expression Namespace
+Namespace ::= Expression
+
+Expression ::= @ Name FunctionParams
+Expression ::= ListOperation @ Name FunctionParams
+FunctionParams ::= FunctionParams , ListOperation
+FunctionParams ::= ListOperation
+
+ListOperation ::= [ ListOperation
+ListOperation ::= ListOperation ]
+ListOperation ::= ListOperation | ListOperation
+ListOperation ::= TernaryOperation
+
+TernaryOperation ::= TernaryOperation ? TernaryOperation : TernaryOperation | Logical
+
+Logical ::= Logical && Logical
+Logical ::= Logical || Logical
+Logical ::= ! Logical
+Logical ::= Comparison
+
+Comparison ::= Addition > Addition
+Comparison ::= Addition >= Addition
+Comparison ::= Addition < Addition
+Comparison ::= Addition <= Addition
+Comparison ::= Addition == Addition
+Comparison ::= Addition != Addition
+
+Addition ::= Multiplication + Addition
+Addition ::= Multiplication - Addition
+Addition ::= Multiplication
+
+Multiplication ::= Multiplication * DieRoll
+Multiplication ::= Multiplication / DieRoll
+Multiplication ::= Multiplication % DieRoll
+
+DieRoll ::= DieRoll # Term
+DieRoll ::= Term
+
+Term ::= $ Name
+Term ::= $ Number
+Term ::= Number
+Term ::= ( Expression )
+
+Whitespace ::= Whitespace Comment Whitespace
+Whitespace ::= [\n\t\r\v ]*
+Comment ::= "[^"]*"
