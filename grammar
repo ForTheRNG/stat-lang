@@ -1,37 +1,43 @@
+# Basic name & number definition
 Name ::= [A-Za-z_][A-Za-z_0-9]*
 Number ::= -?0|[1-9][0-9]*
-FunctionName ::= FunctionName . Name
-FunctionName ::= Name
 
+# Namespaces
 Namespace ::= ' < Name > ' Namespace
 Namespace ::= ' Name ' Namespace
 Namespace ::= ~ Name { Namespace } Namespace
 Namespace ::= Name = Expression Namespace
 Namespace ::= Expression
 
+# Functions
 Expression ::= @ FunctionName FunctionParams
-Expression ::= ListOperation @ FunctionName FunctionParams
-FunctionParams ::= FunctionParams , ListOperation
-FunctionParams ::= ListOperation
+Expression ::= PairOperation @ FunctionName FunctionParams
+FunctionName ::= FunctionName . Name
+FunctionName ::= Name
+FunctionParams ::= FunctionParams , PairOperation
+FunctionParams ::= PairOperation
 
-ListOperation ::= [ ListOperation
-ListOperation ::= ListOperation ]
-ListOperation ::= ListOperation | ListOperation
-ListOperation ::= TernaryOperation
+# Pairs
+PairOperation ::= [ PairOperation
+PairOperation ::= PairOperation ]
+PairOperation ::= PairOperation | PairOperation
+PairOperation ::= TernaryOperation
 
+# Ternary operator(s); need logical results to not propagate
 TernaryOperation ::= TernaryOperationLogical ? TernaryOperation : TernaryOperation
 TernaryOperation ::= TernaryOperationLogical ? Addition : Addition
 TernaryOperation ::= TernaryOperationLogical
 TernaryOperation ::= Addition
-
 TernaryOperationLogical ::= TernaryOperationLogical ? TernaryOperationLogical : TernaryOperationLogical
 TernaryOperationLogical ::= Logical
 
+# Logical operations; TODO figure out how to not make this part redundant
 Logical ::= Logical && Logical
 Logical ::= Logical || Logical
 Logical ::= ! Logical
 Logical ::= Comparison
 
+# Comparisons
 Comparison ::= Addition > Addition
 Comparison ::= Addition >= Addition
 Comparison ::= Addition < Addition
@@ -39,23 +45,28 @@ Comparison ::= Addition <= Addition
 Comparison ::= Addition == Addition
 Comparison ::= Addition != Addition
 
+# Addition & subtraction
 Addition ::= Multiplication + Addition
 Addition ::= Multiplication - Addition
 Addition ::= Multiplication
 
+# Multiplication, division & modulo
 Multiplication ::= Multiplication * DieRoll
 Multiplication ::= Multiplication / DieRoll
 Multiplication ::= Multiplication % DieRoll
 Multiplication ::= DieRoll
 
+# Dice rolls
 DieRoll ::= DieRoll # Term
 DieRoll ::= Term
 
+# Simple terms & parentheses
 Term ::= $ Name
 Term ::= $ Number
 Term ::= Number
 Term ::= ( Expression )
 
+# Whitespace; to be included between any two tokens
 Whitespace ::= Whitespace Comment Whitespace
 Whitespace ::= [\n\t\r\v ]*
 Comment ::= "[^"]*"
