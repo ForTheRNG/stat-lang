@@ -32,7 +32,7 @@ performing analysis on the result of a series of operations, such diamond depend
 variables in the middle of operations must keep track of progenitors and their values
 for each value they can take."
 
-hyperbolic = 1 # (1 # 100)
+hyperbolic = 2 # (2 # 20)
 "Uniform distribution generators should take random amounts as inputs, for better
 approximation of continuous distributions. Above is a rough approximation of a hyperbolic
 distribution."
@@ -48,3 +48,8 @@ split = 1 # 2 > 1 ? 0 : 1 # 50
 "Distributions will have large probability discrepancies, going from 0.5 to 0.02 or
 worse, to the point where floating-point operations can fail. As before, the program
 should accomodate."
+
+div = 2 # 12 / 2
+"Unrounded division would cause floating-point numbers to appear within distributions.
+Worse, it may not be immediately obvious. The above example generates an odd number 50%
+of the time. Such divisions will be rounded down."
