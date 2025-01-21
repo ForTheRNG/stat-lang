@@ -3,41 +3,68 @@ Name ::= [A-Za-z_][A-Za-z_0-9]*
 Number ::= -?0|[1-9][0-9]*
 
 # Namespaces
+# Standard includes
 Namespace ::= ' < Name > ' Namespace
+# Local includes
 Namespace ::= ' Name ' Namespace
+# Function definition
 Namespace ::= ~ Name { Namespace } Namespace
+# Variable assignment
 Namespace ::= Name = Expression Namespace
+# Namespace return statement
 Namespace ::= Expression
 
 # Functions
+# Postfix function call
 Expression ::= @ FunctionName FunctionParams
+# Infix function call
 Expression ::= PairOperation @ FunctionName FunctionParams
+# No function call
+Expression ::= PairOperation
+# Function within namespace of other function call
 FunctionName ::= FunctionName . Name
+# Simple function call
 FunctionName ::= Name
+# Function parameters should be separated by commas...
 FunctionParams ::= FunctionParams , PairOperation
+# ...or no special syntax required
 FunctionParams ::= PairOperation
 
 # Pairs
+# First pair element
 PairOperation ::= [ PairOperation
+# Second pair element
 PairOperation ::= PairOperation ]
+# Element pairing
 PairOperation ::= PairOperation | TernaryOperation
+# No pair operation
 PairOperation ::= TernaryOperation
 
 # Ternary operator(s); need logical results to not propagate
+# Recursive ternary operation
 TernaryOperation ::= TernaryOperationLogical ? TernaryOperation : TernaryOperation
+# Ternary operation resulting in a number
 TernaryOperation ::= TernaryOperationLogical ? Addition : Addition
+# Ternary operation resulting in a boolean
 TernaryOperation ::= TernaryOperationLogical
+# No ternary operation
 TernaryOperation ::= Addition
+# Recursive boolean ternary operation
 TernaryOperationLogical ::= TernaryOperationLogical ? TernaryOperationLogical : TernaryOperationLogical
+# No ternary operation
 TernaryOperationLogical ::= Logical
 
 # Logical operations
+# Logical AND
 Logical ::= Logical && LogicalTerm
+# Logical OR
 Logical ::= Logical || LogicalTerm
+# Logical NOT
 LogicalTerm ::= ! LogicalTerm
+# No operation
 LogicalTerm ::= Comparison
 
-# Comparisons
+# Comparisons; self-explanatory
 Comparison ::= Addition > Addition
 Comparison ::= Addition >= Addition
 Comparison ::= Addition < Addition
@@ -45,28 +72,35 @@ Comparison ::= Addition <= Addition
 Comparison ::= Addition == Addition
 Comparison ::= Addition != Addition
 
-# Addition & subtraction
+# Addition & subtraction; self-explanatory
 Addition ::= Addition + Multiplication
 Addition ::= Addition - Multiplication
 Addition ::= Multiplication
 
-# Multiplication, division & modulo
+# Multiplication, division & modulo; self-explanatory
 Multiplication ::= Multiplication * DieRoll
 Multiplication ::= Multiplication / DieRoll
 Multiplication ::= Multiplication % DieRoll
 Multiplication ::= DieRoll
 
-# Dice rolls
+# Dice rolls; self-explanatory
+# The '#' sign is NOT the start of a comment; it is the operator
 DieRoll ::= DieRoll # Term
+# No die roll
 DieRoll ::= Term
 
 # Simple terms & parentheses
+# User-defined variable reference
 Term ::= $ Name
+# Function parameter reference
 Term ::= $ Number
+# Simple number
 Term ::= Number
+# Parentheses for recursion
 Term ::= ( Expression )
 
 # Whitespace; to be included between any two tokens
 Whitespace ::= Whitespace Comment Whitespace
 Whitespace ::= [\n\t\r\v ]*
+# Comment syntax
 Comment ::= "[^"]*"
