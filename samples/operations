@@ -1,3 +1,5 @@
+"This file is interpretable."
+
 parent = 1 # 6
 child_1 = parent + 1 # 4
 child_2 = parent * 1 # 4
@@ -46,10 +48,14 @@ should accomodate that."
 
 split = 1 # 2 > 1 ? 0 : 1 # 50
 "Distributions will have large probability discrepancies, going from 0.5 to 0.02 or
-worse, to the point where floating-point operations can fail. As before, the program
-should accomodate."
+worse, to the point where floating-point operations can fail due to a lack of precision.
+As before, the program should accomodate."
 
 div = 2 # 12 / 2
 "Unrounded division would cause floating-point numbers to appear within distributions.
 Worse, it may not be immediately obvious. The above example generates an odd number 50%
 of the time. Such divisions will be rounded down."
+
+0
+"The file shoud return a value in order to be interpreted properly. 0 is simply a
+placeholder; replace it with any variable from the above you wish to test."
