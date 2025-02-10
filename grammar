@@ -59,6 +59,8 @@ TernaryOperationLogical ::= Logical
 Logical ::= Logical && LogicalTerm
 # Logical OR
 Logical ::= Logical || LogicalTerm
+# No AND or OR
+Logical ::= LogicalTerm
 # Logical NOT
 LogicalTerm ::= ! LogicalTerm
 # No operation

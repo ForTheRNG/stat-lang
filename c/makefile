@@ -4,7 +4,7 @@ BUILD_DIR := ./obj
 TESTS_DIR := ./tests
 SRC_DIRS := ./src
 
-OTHER_FLAGS := -std=c++17 -Wall -m64 -I src
+OTHER_FLAGS := -std=c++17 -Wall -m64 -Isrc
 
 # Find all the C and C++ files we want to compile
 # Note the single quotes around the * expressions. The shell will incorrectly expand these otherwise, but we want to send the * directly to the find command.
@@ -53,9 +53,10 @@ $(BUILD_DIR)/%.cpp.o: %.cpp
 $(TESTS_DIR)/%.exe: $(TESTS_DIR)/%/test.cpp
 	@ $(CXX) $(CXXFLAGS) $(LDFLAGS) -Wno-exceptions -o $@ $< $(OTHER_FLAGS)
 
-.PHONY: clean tests
+.PHONY: tests clean
 clean:
 	rm -r $(BUILD_DIR)
+	rm tests/*.exe
 
 tests: $(TEST_EXES)
 	@ echo $(TESTS)

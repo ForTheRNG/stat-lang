@@ -86,7 +86,12 @@ int main(int argc, char** argv) {
         }
         idx++;
     }
-    } catch (std::exception ex){}
+    } catch (std::invalid_argument& ex) {
+        std::cerr << ex.what() << std::endl;
+    }
+    catch (std::exception& ex){
+        std::cerr << ex.what() << std::endl;
+    }
     std::cout << errs.size() << " / " << idx << " tests were wrong.";
     if (errs.size() > 0) {
         std::cout << " IDs:";

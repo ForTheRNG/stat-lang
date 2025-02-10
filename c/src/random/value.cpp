@@ -52,28 +52,57 @@ namespace random {
         return other;
     }
 
-    bool value::operator < (const value& other) {
-        if (type < other.type)
+    bool value::operator < (const value& b) {
+        value a = *this;
+        if (a.type < b.type)
             return true;
-        if (type > other.type)
+        if (a.type > b.type)
             return false;
         bool retval = false;
-        switch(type) {
+        switch(a.type) {
             case value::null:
-                retval = false;
                 break;
             case value::boolean:
-                retval = !(data.b) && other.data.b;
+                retval = !(a.data.b) && b.data.b;
                 break;
             case value::number:
-                retval = data.i < other.data.i;
+                retval = a.data.i < b.data.i;
                 break;
             case value::pair:
-                if (*(data.p[0]) < *(other.data.p[0]))
+                if (*(a.data.p[0]) < *(b.data.p[0]))
                     retval = true;
-                if (*(other.data.p[0]) < *(data.p[0]))
+                if (*(b.data.p[0]) < *(a.data.p[0]))
                     retval = false;
-                return *(data.p[1]) < *(other.data.p[1]);
+                return *(a.data.p[1]) < *(b.data.p[1]);
+            default:
+                break;
+        }
+        return retval;
+    }
+}
+
+namespace std {
+    bool less<random::value>::operator () (const random::value& a, const random::value& b) {
+        if (a.type < b.type)
+            return true;
+        if (a.type > b.type)
+            return false;
+        bool retval = false;
+        switch(a.type) {
+            case random::value::null:
+                break;
+            case random::value::boolean:
+                retval = !(a.data.b) && b.data.b;
+                break;
+            case random::value::number:
+                retval = a.data.i < b.data.i;
+                break;
+            case random::value::pair:
+                if (*(a.data.p[0]) < *(b.data.p[0]))
+                    retval = true;
+                if (*(b.data.p[0]) < *(a.data.p[0]))
+                    retval = false;
+                return *(a.data.p[1]) < *(b.data.p[1]);
             default:
                 break;
         }

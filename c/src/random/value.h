@@ -22,15 +22,14 @@ namespace random {
         value(value* p1, value* p2);
         value(const value& other);
         value operator = (const value& other);
-        const static bool operator<;
+        bool operator <(const value& b) const;
     };
-    static bool value::operator<(const value& a, const value& b);
 }
 
 namespace std {
     template<> class less<random::value> {
     public:
-        bool operator () (const random::value a, const random::value b) { random::value x = a; return x < b; }
+        bool operator () (const random::value& a, const random::value& b);
     };
 }
 

@@ -43,5 +43,6 @@ namespace random {
             return res;
         t = t / s;
         f = f / s;
+        // TODO complete this function
     }
 }

@@ -57,5 +57,5 @@ Worse, it may not be immediately obvious. The above example generates an odd num
 of the time. Such divisions will be rounded down."
 
 0
-"The file shoud return a value in order to be interpreted properly. 0 is simply a
+"The file should return a value in order to be interpreted properly. 0 is simply a
 placeholder; replace it with any variable from the above you wish to test."
