@@ -52,6 +52,7 @@ class Value:
     def __truediv__(self, other: Self) -> Self:
         return Value(ValueType.Num, self.check(ValueType.Num)._data // other.check(ValueType.Num)._data)
     
+    # TODO add other types to comparisons
     def __lt__(self, other: Self) -> bool:
         return Value(ValueType.Num, self.check(ValueType.Num)._data < other.check(ValueType.Num)._data)
     

@@ -1,11 +1,12 @@
 from typing import Self, Callable
+import random
 
 from value import Value, ValueType
 from probability import Probability
-import random
+from condense import condense
 
 class Variable:
-    _data: Callable[[], list[tuple[Value, Probability, list[tuple[Self, Value]]]]]
+    _data: Callable[[], list[tuple[Value, Probability, list[list[tuple[Self, Value]]]]]]
     _sample: Callable[[], Value]
     def __init__(self, a: Self | Value | ValueType | int | Callable[[], list[tuple[Value, Probability, list[list[tuple[Self, Value]]]]]],
                  b: None | int | tuple[Probability, Probability] = None):
@@ -37,35 +38,35 @@ class Variable:
 
     def pair(self, other: Self) -> Self:
         return Variable(ValueType.Null) # placeholder; TODO finish entanglement
-    
+
     def __add__(self, other: Self) -> Self:
-        return Variable(lambda: map(lambda x: (x[0][0] + x[0][1], x[1], x[2]), self.pair(other)._data()))
+        return Variable(lambda: condense(map(lambda x: (x[0][0] + x[0][1], x[1], x[2]), self.pair(other)._data())))
     
     def __sub__(self, other: Self) -> Self:
-        return Variable(lambda: map(lambda x: (x[0][0] - x[0][1], x[1], x[2]), self.pair(other)._data()))
+        return Variable(lambda: condense(map(lambda x: (x[0][0] - x[0][1], x[1], x[2]), self.pair(other)._data())))
     
     def ternary(self, true: Self, false: Self) -> Self:
-        return Variable(lambda: map(lambda x: (x[0][1][1] if x[0][0] else x[0][1][0], x[1], x[2]), self.pair(true.pair(false))._data()))
+        return Variable(lambda: condense(map(lambda x: (x[0][1][1] if x[0][0] else x[0][1][0], x[1], x[2]), self.pair(true.pair(false))._data())))
     
     def first(self) -> Self:
-        return Variable(lambda: map(lambda x: (x[0][0], x[1], x[2]), self._data()))
+        return Variable(lambda: condense(map(lambda x: (x[0][0], x[1], x[2]), self._data())))
     
     def second(self) -> Self:
-        return Variable(lambda: map(lambda x: (x[0][1], x[1], x[2]), self._data()))
+        return Variable(lambda: condense(map(lambda x: (x[0][1], x[1], x[2]), self._data())))
     
     def __matmul__(self, other) -> Self:
         return Variable(lambda:
-                        map(lambda x:
-                            random.sample(range(x[0][0].check(ValueType.Num)._data, x[0][1].check(ValueType.Num)._data + 1), 1)[0],
+                        condense(map(lambda x:
+                            random.sample(range(x[0][0].check(ValueType.Num)[0], x[0][1].check(ValueType.Num)[0] + 1), 1)[0],
                             self.pair(other)._data()
                             )
-                        )
+                        ))
     
     def l_and(self, other: Self) -> Self:
-        return Variable(lambda: map(lambda x: (Value(ValueType.Bool, x[0][0] and x[0][1]), x[1], x[2]), self.pair(other)._data()))
+        return Variable(lambda: condense(map(lambda x: (Value(ValueType.Bool, x[0][0] and x[0][1]), x[1], x[2]), self.pair(other)._data())))
     
     def l_or(self, other: Self) -> Self:
-        return Variable(lambda: map(lambda x: (Value(ValueType.Bool, x[0][0] or x[0][1]), x[1], x[2]), self.pair(other)._data()))
+        return Variable(lambda: condense(map(lambda x: (Value(ValueType.Bool, x[0][0] or x[0][1]), x[1], x[2]), self.pair(other)._data())))
     
     def l_not(self) -> Self:
-        return Variable(lambda: map(lambda x: (Value(ValueType.Bool, not x[0]), x[1], x[2]), self._data()))
+        return Variable(lambda: condense(map(lambda x: (Value(ValueType.Bool, not x[0]), x[1], x[2]), self._data())))
