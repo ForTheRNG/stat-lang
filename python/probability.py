@@ -9,8 +9,9 @@ class Probability:
         if (denumerator < 0):
             numerator = -numerator
             denumerator = -denumerator
-        self._num = numerator
-        self._den = denumerator
+        g = gcd(numerator, denumerator)
+        self._num = numerator / g
+        self._den = denumerator / g
     
     def __add__(self, other: Self) -> Self:
         a = self._num * other._den + self._den * other._num
