@@ -55,5 +55,5 @@ def die_roll(a: int, b: int) -> int:
     return sample(range(1, b + 1), 1)[0] + die_roll(a - 1, b)
 
 if __name__ == "__main__":
-    print(prob_gen(6, 10))
-    print(die_roll(6, 10))
+    print(prob_gen(6, 1000))
+    print(die_roll(6, 1000))
