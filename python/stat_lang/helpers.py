@@ -2,8 +2,8 @@ from functools import reduce
 from typing import Iterable
 from random import sample
 
-from value import Value, ValueType
-from probability import Probability
+from .value import Value, ValueType
+from .probability import Probability
 
 def _add(a: list[tuple[Value, Probability, list]],
          e: tuple[Value, Probability, list]

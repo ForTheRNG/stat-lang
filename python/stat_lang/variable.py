@@ -2,32 +2,21 @@ from functools import reduce
 from typing import Any, Self, Callable, Iterable
 from random import random
 
-from value import Value, ValueType
-from probability import Probability
-from helpers import condense, die_roll, extend, prob_gen
+from .value import Value, ValueType
+from .probability import Probability
+from .helpers import condense, die_roll, extend, prob_gen
 
-_sample_id: int = 0
+
 
 class Variable:
     _data: Callable[[], list[tuple[Value, Probability, list[list[tuple[Self, Value]]]]]]
     sample: Callable[[], Value]
     _sample_cache: tuple[int, Value]
+    """sample cache; saves both sample id and actual result for dependency graphs"""
     _data_cache: list[tuple[Value, Probability, list[list[tuple[Self, Value]]]]] | None
-
-    def _sample_lambda(self, l: Callable[[], Value]) -> Value:
-        if self._sample_cache[0] != _sample_id:
-            self._sample_cache = _sample_id, l()
-        return self._sample_cache[1]
-    
-    def _data_lambda(self, l: Callable[[], Iterable[tuple[Value, Probability, list[list[tuple[Self, Value]]]]]]) -> list[tuple[Value, Probability, list[list[tuple[Self, Value]]]]]:
-        if self._data_cache is None:
-            self._data_cache = condense(l())
-        return self._data_cache
-
-    def analyze(self) -> list[tuple[Value, Probability]]:
-        if self._data_cache is None:
-            self._data_cache = self._data()
-        return list(map(lambda x: (x[0], x[1]), self._data_cache))
+    """data cache; saves result for re-computations in a dependency graph"""
+    _sample_id: int = 0
+    """needed to ensure the same sample gives the same result for the same variable"""
 
     def __init__(self, a: Self | Value | ValueType | int | Callable[[], list[tuple[Value, Probability, list[list[tuple[Self, Value]]]]]],
                  b: None | int | tuple[Probability, Probability] | Callable[[int], Value] = None):
@@ -58,6 +47,23 @@ class Variable:
             p = b ** a
             self._data = lambda: [(Value(ValueType.Num, x[0]), Probability(x[1], p), []) for x in enumerate(prob_gen(a, b), a)]
             self.sample = lambda: die_roll(a, b)
+        self._sample_cache = -1, None
+        self._data_cache = None
+
+    def _sample_lambda(self, l: Callable[[], Value]) -> Value:
+        if self._sample_cache[0] != Variable._sample_id:
+            self._sample_cache = Variable._sample_id, l()
+        return self._sample_cache[1]
+    
+    def _data_lambda(self, l: Callable[[], Iterable[tuple[Value, Probability, list[list[tuple[Self, Value]]]]]]) -> list[tuple[Value, Probability, list[list[tuple[Self, Value]]]]]:
+        if self._data_cache is None:
+            self._data_cache = condense(l())
+        return self._data_cache
+
+    def analyze(self) -> list[tuple[Any, float]]:
+        if self._data_cache is None:
+            self._data_cache = self._data()
+        return list(map(lambda x: (x[0]._data, x[1]._num / x[1]._den), self._data_cache))
 
     def __getitem__(self, key: Any) -> Value:
         _sample_id += 1
