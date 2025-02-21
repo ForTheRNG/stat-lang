@@ -27,18 +27,19 @@ class Value:
             raise ValueError("Value type was not part of ValueType enum!")
 
     def check(self, type: ValueType) -> Self:
+        """Check if a value is of the given type. Raise an error otherwise. Returns the original value for chaining."""
         if self._type is not type:
-            raise ValueError(f"Value is not a {type.value}!")
+            raise TypeError(f"Value is not a {type.value}!")
         return self
 
-    def __getitem__(self, key: int | None) -> Self:
-        if key == 0 or key == None:
-            return self._data[0] if self._type == ValueType.Pair else self._data
-        if key > 1 or key < 0:
-            raise ValueError("Key is not 0 or 1!")
-        if key == 1 and self._type != ValueType.Pair:
-            raise ValueError("Cannot access second element of a non-pair!")
-        return self._data[1]
+    def __getitem__(self, key: int) -> None | int | bool | Self:
+        if key == 0:
+            return self._data
+        if key > 2 or key < 0:
+            raise ValueError("Key is not 0, 1 or 2!")
+        if key > 0 and self._type != ValueType.Pair:
+            raise ValueError("Cannot access elements of a non-pair!")
+        return self._data[key - 1]
 
     def __add__(self, other: Self) -> Self:
         return Value(ValueType.Num, self.check(ValueType.Num)._data + other.check(ValueType.Num)._data)
@@ -52,24 +53,30 @@ class Value:
     def __truediv__(self, other: Self) -> Self:
         return Value(ValueType.Num, self.check(ValueType.Num)._data // other.check(ValueType.Num)._data)
     
-    # TODO add other types to comparisons
     def __lt__(self, other: Self) -> bool:
-        return Value(ValueType.Num, self.check(ValueType.Num)._data < other.check(ValueType.Num)._data)
+        return self <= other and self != other
     
     def __gt__(self, other: Self) -> bool:
-        return Value(ValueType.Num, self.check(ValueType.Num)._data > other.check(ValueType.Num)._data)
+        return not self <= other
     
     def __le__(self, other: Self) -> bool:
-        return Value(ValueType.Num, self.check(ValueType.Num)._data <= other.check(ValueType.Num)._data)
+        if self._type == ValueType.Null:
+            return True
+        elif self._type == ValueType.Bool:
+            return other._type == ValueType.Bool and (not self or other) or other._type == ValueType.Num or other._type == ValueType.Pair
+        elif self._type == ValueType.Num:
+            return other._type == ValueType.Num and self < other or other.type == ValueType.Pair
+        else:
+            return self[1] < other[1] if self[0] == other[0] else self[0] < other[0]
 
     def __ge__(self, other: Self) -> bool:
-        return Value(ValueType.Num, self.check(ValueType.Num)._data >= other.check(ValueType.Num)._data)
+        return not self <= other or self == other
 
     def __eq__(self, other: Self) -> bool:
         return self._type == other._type and (
             self._type == ValueType.Null or (
                 self._data[0] == other._data[0] and self._data[1] == other._data[1]
-                if self.type == ValueType.Pair
+                if self._type == ValueType.Pair
                 else self._data == other._data
             )
         )

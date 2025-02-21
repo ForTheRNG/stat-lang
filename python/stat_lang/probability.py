@@ -5,37 +5,37 @@ class Probability:
     _num: int
     _den: int
 
-    def __init__(self, numerator: int, denumerator: int):
-        if (denumerator < 0):
+    def __init__(self, numerator: int, denominator: int):
+        if (denominator < 0):
             numerator = -numerator
-            denumerator = -denumerator
-        g = gcd(numerator, denumerator)
-        self._num = numerator / g
-        self._den = denumerator / g
+            denominator = -denominator
+        g = gcd(numerator, denominator)
+        self._num = numerator // g
+        self._den = denominator // g
     
     def __add__(self, other: Self) -> Self:
         a = self._num * other._den + self._den * other._num
         b = self._den * other._den
         g = gcd(a, b)
-        return Probability(a / g, b / g)
+        return Probability(a // g, b // g)
     
     def __sub__(self, other: Self) -> Self:
         a = self._num * other._den - self._den * other._num
         b = self._den * other._den
         g = gcd(a, b)
-        return Probability(a / g, b / g)
+        return Probability(a // g, b // g)
     
     def __mul__(self, other: Self) -> Self:
         a = self._num * other._num
         b = self._den * other._den
         g = gcd(a, b)
-        return Probability(a / g, b / g)
+        return Probability(a // g, b // g)
     
     def __truediv__(self, other: Self) -> Self:
         a = self._num * other._den
         b = self._den * other._num
         g = gcd(a, b)
-        return Probability(a / g, b / g)
+        return Probability(a // g, b // g)
     
     def __lt__(self, other: Self) -> bool:
         return self._num * other._den < self._den * other._num

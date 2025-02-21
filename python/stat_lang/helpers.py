@@ -21,18 +21,6 @@ def condense(a: Iterable[tuple[Value, Probability, list]]
              ) -> list[tuple[Value, Probability, list]]:
     return reduce(_add, list(a), [])
 
-def extend(a: list[tuple[Value, Probability, list]],
-            x: tuple[Value, Probability, list]
-            ) -> list[tuple[Value, Probability, list]]:
-    c = x[0][0].check(ValueType.Num)._data
-    d = x[0][1].check(ValueType.Num)._data
-    if c > d:
-        c = c ^ d
-        d = c ^ d
-        c = c ^ d
-    a.extend([(Value(ValueType.Num, c + i), x[1] * Probability(1, d - c + 1), x[2]) for i in range(0, d - c + 1)])
-    return a
-
 def prob_gen(a: int, b: int) -> list[int]:
     if a == 0:
         return [1]
@@ -49,11 +37,17 @@ def prob_gen(a: int, b: int) -> list[int]:
         final_list.append(sum)
     return final_list
 
+def extend(a: list[tuple[Value, Probability, list]],
+            x: tuple[Value, Probability, list]
+            ) -> list[tuple[Value, Probability, list]]:
+    c = x[0][1].check(ValueType.Num)[0]
+    d = x[0][2].check(ValueType.Num)[0]
+    p = d ** c
+    # a.extend([(Value(ValueType.Num, c + i), x[1] * Probability(1, d - c + 1), x[2]) for i in range(0, d - c + 1)])
+    a.extend((Value(ValueType.Num, i), x[1] * Probability(j, p), x[2]) for i, j in enumerate(prob_gen(c, d), c))
+    return a
+
 def die_roll(a: int, b: int) -> int:
     if a == 0:
         return 0
     return sample(range(1, b + 1), 1)[0] + die_roll(a - 1, b)
-
-if __name__ == "__main__":
-    print(prob_gen(6, 1000))
-    print(die_roll(6, 1000))
