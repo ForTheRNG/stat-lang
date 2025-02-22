@@ -57,3 +57,6 @@ class Probability:
     
     def __neg__(self) -> Self:
         return Probability(-self._num, self._den)
+    
+    def __repr__(self) -> str:
+        return f"{self._num}/{self._den}"

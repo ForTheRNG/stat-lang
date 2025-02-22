@@ -1,3 +1,4 @@
+from copy import copy
 from functools import reduce
 from typing import Iterable
 from random import sample
@@ -11,9 +12,12 @@ def _add(a: list[tuple[Value, Probability, list]],
     pa = list(map(lambda x: x[0], a))
     if e[0] in pa:
         idx = pa.index(e[0])
-        a[idx] = (e[0], a[idx][1] + e[1], a[idx][2].extend(e[2]))
+        l = copy(a[idx][2])
+        l.extend(e[2])
+        a[idx] = (e[0], a[idx][1] + e[1], l)
     else:
-        a.append(e)
+        if e[1]._num != 0:
+            a.append(e)
     return a
 
 

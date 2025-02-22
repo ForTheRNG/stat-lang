@@ -89,3 +89,9 @@ class Value:
 
     def __bool__(self) -> bool:
         return self.check(ValueType.Bool)._data
+    
+    def __int__(self) -> int:
+        return self.check(ValueType.Num)._data
+    
+    def __repr__(self) -> str:
+        return f"Value({self._data})"

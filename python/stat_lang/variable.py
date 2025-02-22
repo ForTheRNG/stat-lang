@@ -1,12 +1,28 @@
 from functools import reduce
+import math
 from typing import Any, Callable, Iterable, Literal, Self
 
 from .value import Value, ValueType
 from .probability import Probability
 from .helpers import condense, die_roll, extend, prob_gen
 
+def _intersect(a: tuple[Value, Probability, list[list[tuple["Variable", Value]]]],
+               b: tuple[Value, Probability, list[list[tuple["Variable", Value]]]]
+               ) -> tuple[Value, Probability, list[list[tuple["Variable", Value]]]]:
+    return (Value(ValueType.Pair, a[0], b[0]), a[1] * b[1], []) # placeholder; TODO figure out entanglement
+
+def _tangle(a: list[tuple[Value, Probability, list[list[tuple["Variable", Value]]]]],
+            b: list[tuple[Value, Probability, list[list[tuple["Variable", Value]]]]]
+            ) -> list[tuple[Value, Probability, list[list[tuple["Variable", Value]]]]]:
+    """Tangle two variables. Computes new tuple for internal representation."""
+    basic = [_intersect(x, y) for x in a for y in b]
+    prob = reduce(lambda accu, elem: accu + elem[1], basic, Probability(0, 1)) # prob should be 1 because entanglement is not implemented
+    if prob._num == 0:
+        return [(Value(ValueType.Null), Probability(1, 1), [])]
+    return [(x[0], x[1] / prob, x[2]) for x in basic]
+
 class Variable:
-    __data: Callable[[], list[tuple[Value, Probability, list[list[tuple[Self, Value]]]]]]
+    __data: Callable[[], Iterable[tuple[Value, Probability, list[list[tuple[Self, Value]]]]]]
     """Create the distribution of the variable. Stored as a lambda for lazy evaluation."""
     __sample: Callable[[], Value]
     """Sample the variable. Ignores sampling ID."""
@@ -17,8 +33,9 @@ class Variable:
     _sample_id: int = 0
     """Needed to ensure the same sample gives the same result for the same variable."""
 
-    def __init__(self, a: Self | Value | ValueType | int | Callable[[], list[tuple[Value, Probability, list[list[tuple[Self, Value]]]]]],
-                 b: None | int | bool | tuple[Value, Value] | Callable[[int], Value] = None):
+    def __init__(self,
+                 a: Self | Value | ValueType | int | Callable[[], Iterable[tuple[Value, Probability, list[list[tuple[Self, Value]]]]]],
+                 b: None | int | bool | tuple[Value, Value] | Callable[[], Value] = None):
         """
         Initialize a new variable.
 
@@ -28,16 +45,18 @@ class Variable:
 
         If a is an int, b should be an int. A new variable will be created as the sum of a dice with b faces.
 
-        If a is a lambda function, it is expected to return an internal representation of a variable. b should be a correct sampling of that data, also as a lambda function.
+        If a is a lambda function, it is expected to return an internal representation of a variable.
+        (The list of variable dependencies should be left empty unless you really know what you're doing.)
+        b should be a correct sampling of that data, also as a lambda function.
         """
         self._sample_cache = -1, None
         self._data_cache = ""
         if isinstance(a, Variable):
-            self.__data = a._data
-            self._sample = a._sample
+            self.__data = a.__data
+            self.__sample = a.__sample
         elif isinstance(a, Value):
             self.__data = lambda: [(a, Probability(1, 1), [])]
-            self._sample = lambda: a
+            self.__sample = lambda: a
         elif isinstance(a, Callable):
             self.__data = a
             self.__sample = b
@@ -47,40 +66,39 @@ class Variable:
         else:
             p = b ** a
             self.__data = lambda: [(Value(ValueType.Num, x[0]), Probability(x[1], p), []) for x in enumerate(prob_gen(a, b), a)]
-            self.__sample = lambda: die_roll(a, b)
+            self.__sample = lambda: Value(ValueType.Num, die_roll(a, b))
 
     def analyze(self) -> list[tuple[Any, float]]:
         """Return a list of tuples of outcomes and associeted probabilities."""
-        if self._data_cache == "":
-            self._data_cache = self._data()
-        return list(map(lambda x: (x[0]._data, x[1]._num / x[1]._den), self._data_cache))
+        return list(map(lambda x: (x[0]._data, x[1]._num / x[1]._den), self._data()))
 
-    def __getitem__(self, _) -> Value:
-        """Sample the variable. No specific outcome; the key is a filler parameter."""
-        Variable._sample_id += 1
-        if Variable._sample_id == 1 << 30:
-            Variable._sample_id = 0
-        return self._get_sample()
+    def __getitem__(self, key: int) -> Value:
+        """Sample the variable. Repeat outcome by feeding the same key. (Cache is limited to one outcome.)"""
+        Variable._sample_id = key
+        return self._sample()[0]
     
     def sample(self) -> Value:
         """Sample the variable."""
-        return self[0]
+        Variable._sample_id += 1
+        if Variable._sample_id >= 1 << 30:
+            Variable._sample_id = 0
+        return self[Variable._sample_id]
 
     def _data(self) -> list[tuple[Value, Probability, list[list[tuple[Self, Value]]]]]:
         """Get the data from the lambda."""
         if self._data_cache == "":
-            self._data_cache = self.__data()
+            self._data_cache = condense(self.__data())
         return self._data_cache
 
     def _sample(self) -> Value:
-        """Sample a value. Includes sampling ID."""
+        """Sample a value. Includes sampling ID, but does not modify it."""
         if Variable._sample_id != self._sample_cache[0]:
             self._sample_cache = Variable._sample_id, self.__sample()
         return self._sample_cache[1]
 
     def pair(self, other: Self) -> Self:
         """Pair two variables together in a tuple."""
-        return Variable(lambda: map(lambda x, y: (Value(ValueType.Pair, (x[0], y[0])), x[1] * y[1], []), self._data(), other._data()),
+        return Variable(lambda: _tangle(self._data(), other._data()),
                         lambda: Value(ValueType.Pair, (self._sample(), other._sample()))) # TODO finish entanglement properly
 
     # TODO add the other operations
@@ -102,14 +120,15 @@ class Variable:
         return Variable(lambda: map(lambda x: (x[0][1] * x[0][2], x[1], x[2]), self.pair(other)._data()),
                         lambda: self._sample() * other._sample())
     
-    def __div__(self, other: Self) -> Self:
+    def __truediv__(self, other: Self) -> Self:
         if not isinstance(other, Variable):
             other = Variable(ValueType.Num, other)
         return Variable(lambda: map(lambda x: (x[0][1] / x[0][2], x[1], x[2]), self.pair(other)._data()),
-                        lambda: self._sample() // other._sample())
+                        lambda: self._sample() / other._sample())
     
     def ternary(self, true: Self, false: Self) -> Self:
         """Compute a ternary output with the main variable as the condition."""
+        # TODO add various value types to type checks
         if not isinstance(true, Variable):
             true = Variable(ValueType.Num, true)
         if not isinstance(false, Variable):
@@ -150,3 +169,38 @@ class Variable:
         """Compare two variables using "less than" logic."""
         return Variable(lambda: map(lambda x: (Value(ValueType.Bool, x[0][1] < x[0][2]), x[1], x[2]), self.pair(other)._data()),
                         lambda: Value(ValueType.Bool, self._sample() < other._sample()))
+    
+    def mean(self, count: None | int = None) -> float:
+        """
+        Compute average of variable.
+        
+        If count is None, the entire variable is computed and then averaged.
+
+        If count is an integer, the variable is sampled count times, and the results are averaged.
+        """
+        if count is None:
+            out = reduce(lambda accu, elem: accu + Probability(elem[0], 1) * Probability(round(elem[1] * (1 << -math.floor(math.log2(elem[1])))), 1 << -math.floor(math.log2(elem[1]))), self.analyze(), Probability(0, 1))
+            return out._num / out._den
+        sum = 0
+        for i in range(count):
+            sum += self[i]
+        return sum / count
+    
+    def std(self, count: None | int = None) -> float:
+        """
+        Compute standard deviation of variable.
+
+        If count is None, the entire variable is computed.
+
+        If count is an integer, the variable is sampled count times, and the results are used as a uniform variable.
+        """
+        if count is None:
+            avg = self.mean()
+            var = reduce(lambda accu, elem: accu + (elem[0][0] - avg) ** 2, self._data_cache, 0) / len(self._data_cache)
+            return math.sqrt(var)
+        samples = []
+        for i in range(count):
+            samples.append(self[i])
+        avg = reduce(lambda accu, elem: accu + elem, samples, 0) / len(samples)
+        var = reduce(lambda accu, elem: accu + (elem - avg) ** 2, samples, 0) / len(samples)
+        return math.sqrt(var)
