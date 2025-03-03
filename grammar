@@ -43,8 +43,6 @@ PairOperation ::= TernaryOperation
 # Ternary operator(s); need logical results to not propagate
 # Recursive ternary operation
 TernaryOperation ::= TernaryOperationLogical ? TernaryOperation : TernaryOperation
-# Ternary operation resulting in a number
-TernaryOperation ::= TernaryOperationLogical ? Addition : Addition
 # Ternary operation resulting in a boolean
 TernaryOperation ::= TernaryOperationLogical
 # No ternary operation

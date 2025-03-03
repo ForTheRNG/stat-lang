@@ -4,7 +4,7 @@ from typing import Any, Callable, Iterable, Literal, Self
 
 from .value import Value, ValueType
 from .probability import Probability
-from .helpers import condense, die_roll, extend, prob_gen
+from .helpers import condense, die_roll, extend, prob_gen, find
 
 def _intersect(a: tuple[Value, Probability, list[list[tuple["Variable", Value]]]],
                b: tuple[Value, Probability, list[list[tuple["Variable", Value]]]]
@@ -14,12 +14,12 @@ def _intersect(a: tuple[Value, Probability, list[list[tuple["Variable", Value]]]
 def _tangle(a: list[tuple[Value, Probability, list[list[tuple["Variable", Value]]]]],
             b: list[tuple[Value, Probability, list[list[tuple["Variable", Value]]]]]
             ) -> list[tuple[Value, Probability, list[list[tuple["Variable", Value]]]]]:
-    """Tangle two variables. Computes new tuple for internal representation."""
+    """Tangle two variables. Computes new tuples for internal representation."""
     basic = [_intersect(x, y) for x in a for y in b]
     prob = reduce(lambda accu, elem: accu + elem[1], basic, Probability(0, 1)) # prob should be 1 because entanglement is not implemented
     if prob._num == 0:
         return [(Value(ValueType.Null), Probability(1, 1), [])]
-    return [(x[0], x[1] / prob, x[2]) for x in basic]
+    return [(x[0], x[1] / prob, x[2]) for x in basic] # renormalization of the variable
 
 class Variable:
     __data: Callable[[], Iterable[tuple[Value, Probability, list[list[tuple[Self, Value]]]]]]
@@ -72,12 +72,12 @@ class Variable:
         """Return a list of tuples of outcomes and associeted probabilities."""
         return list(map(lambda x: (x[0]._data, x[1]._num / x[1]._den), self._data()))
 
-    def __getitem__(self, key: int) -> Value:
+    def __getitem__(self, key: int) -> None | bool | int | tuple[Value, Value]:
         """Sample the variable. Repeat outcome by feeding the same key. (Cache is limited to one outcome.)"""
         Variable._sample_id = key
         return self._sample()[0]
     
-    def sample(self) -> Value:
+    def sample(self) -> None | bool | int | tuple[Value, Value]:
         """Sample the variable."""
         Variable._sample_id += 1
         if Variable._sample_id >= 1 << 30:

@@ -65,9 +65,9 @@ class Value:
         elif self._type == ValueType.Bool:
             return other._type == ValueType.Bool and (not self or other) or other._type == ValueType.Num or other._type == ValueType.Pair
         elif self._type == ValueType.Num:
-            return other._type == ValueType.Num and self < other or other.type == ValueType.Pair
+            return other._type == ValueType.Num and self[0] < other[0] or other._type == ValueType.Pair
         else:
-            return self[1] < other[1] if self[0] == other[0] else self[0] < other[0]
+            return self[2] < other[2] if self[1] == other[1] else self[1] < other[1]
 
     def __ge__(self, other: Self) -> bool:
         return not self <= other or self == other

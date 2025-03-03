@@ -1,0 +1,60 @@
+NAME: /[A-Za-z_][A-Za-z0-9_]*/
+NUMBER: /-?(0|[1-9][0-9]*)/
+COMMENT: /"[^"]*"/
+WHITESPACE: /[\n\t\r\v ]*/
+%ignore WHITESPACE
+%ignore COMMENT
+
+start: "'<" NAME ">'" start
+    | "'" NAME "'" start
+    | "~" NAME "{" start "}" start
+    | NAME "=" expression start
+    | expression
+
+expression: "@" function_name function_params
+        | pair_operation "@" function_name function_params
+        | pair_operation
+function_name: function_name "." NAME
+            | NAME
+function_params: function_params "," pair_operation
+                | pair_operation
+
+pair_operation: "[" pair_operation
+                | pair_operation "]"
+                | pair_operation "|" ternary_operation
+                | ternary_operation
+
+ternary_operation: ternary_operation_logical "?" ternary_operation ":" ternary_operation
+                | addition
+ternary_operation_logical: ternary_operation_logical "?" ternary_operation_logical ":" ternary_operation_logical
+                        | logical
+
+logical: logical "&&" logical_term
+        | logical "||" logical_term
+        | logical_term
+logical_term: "!" logical_term
+            | comparison
+
+comparison: addition ">" addition
+        | addition ">=" addition
+        | addition "<" addition
+        | addition "<=" addition
+        | addition "==" addition
+        | addition "!=" addition
+
+addition: addition "+" multiplication
+        | addition "-" multiplication
+        | multiplication
+
+multiplication: multiplication "*" die_roll
+                | multiplication "/" die_roll
+                | multiplication "%" die_roll
+                | die_roll
+
+die_roll: die_roll "#" term
+        | term
+
+term: "$" NAME
+    | "$" NUMBER
+    | NUMBER
+    | "(" expression ")"

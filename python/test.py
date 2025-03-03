@@ -1,7 +1,9 @@
-from stat_lang import Variable, ValueType
+from stat_variables import Variable, ValueType
 from matplotlib import pyplot as plt
 
-var = (Variable(ValueType.Num, 3) @ Variable(1, 101) - Variable(ValueType.Num, 3)) # / Variable(ValueType.Num, 3)
+a = Variable(2, 20)
+b = Variable(2, 20)
+var = a.c_lt(b).ternary(a, b)
 for _ in range(10):
     print(var.sample())
 print(f"{var.mean(1000)} vs. {var.mean()}")
