@@ -170,6 +170,7 @@ class Variable:
         return Variable(lambda: map(lambda x: (Value(ValueType.Bool, x[0][1] < x[0][2]), x[1], x[2]), self.pair(other)._data()),
                         lambda: Value(ValueType.Bool, self._sample() < other._sample()))
     
+    
     def mean(self, count: None | int = None) -> float:
         """
         Compute average of variable.

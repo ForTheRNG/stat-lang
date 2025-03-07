@@ -10,4 +10,4 @@
 }
 
 "last parameter is a limit on the distribution size"
-"example: 1 @exponential 2, 1000 - an exponential distribution with decay 1/2 capped at 1000 entries"
+1 @exponential 2, 1000 "an exponential distribution with decay 1/2 capped at 1000 entries"

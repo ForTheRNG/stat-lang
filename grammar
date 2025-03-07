@@ -4,9 +4,11 @@ Number ::= -?0|[1-9][0-9]*
 
 # Namespaces
 # Standard includes
-Namespace ::= ' < Name > ' Namespace
+Overspace ::= ' < Name > ' Overspace
 # Local includes
-Namespace ::= ' Name ' Namespace
+Overspace ::= ' Name ' Overspace
+
+Overspace ::= Namespace
 # Function definition
 Namespace ::= ~ Name { Namespace } Namespace
 # Variable assignment

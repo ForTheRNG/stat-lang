@@ -4,4 +4,4 @@
 }
 
 "Creates a hyperbolic distribution"
-"Example: 500 @ hyperbolic 100 150 - sample a pot of 500 balls, 100 of which are green, 150 times; output is how many balls are green"
+500 @ hyperbolic 100 150 "sample a pot of 500 balls, 100 of which are green, 150 times; output is how many balls are green"

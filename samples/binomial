@@ -2,5 +2,5 @@
     (1 # $2 <= $1 ? 1 : 0) + ($3 == 0 ? 0 : ($1 @ binomial $2, $3 - 1))
 }
 
+3 @ binomial 10, 100 "number of events with chance 3/10 taking place in 100 trials"
 "last parameter is number of trials"
-"example 3 @binomial 10, 100 - number of events with chance 3/10 taking place in 100 trials"

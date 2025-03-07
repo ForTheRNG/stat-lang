@@ -1,9 +1,11 @@
 "This file is interpretable."
+'poisson'
+"Other files should behave like functions, so modules can be developed."
 
 parent = 1 # 6
-child_1 = parent + 1 # 4
-child_2 = parent * 1 # 4
-grandchild = child_2 - child_1
+child_1 = $parent + 1 # 4
+child_2 = $parent * 1 # 4
+grandchild = $child_2 - $child_1
 "Unless progenitor detection is used, the above statements would trip the program."
 "The parent takes values 1-6 with equal probability. The children look as follows:
 
