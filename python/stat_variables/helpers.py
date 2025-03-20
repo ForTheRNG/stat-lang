@@ -31,23 +31,23 @@ def _add(a: list[tuple[Value, Probability, list]],
 
 def condense(a: Iterable[tuple[Value, Probability, list]]
              ) -> list[tuple[Value, Probability, list]]:
-    return reduce(_add, a, [])
+    shortlist = reduce(_add, a, [])
+    shortlist.sort(key = lambda x: x[0])
+    return shortlist
 
 def prob_gen(a: int, b: int) -> list[int]:
     if a == 0:
         return [1]
     initial_list = prob_gen(a - 1, b)
+    initial_list.extend(0 for x in range(b - 1))
     final_list = []
     sum = 0
     for x in range(b):
         sum += initial_list[x]
         final_list.append(sum)
-    for x in range(b, len(initial_list) - b):
+    for x in range(b, len(initial_list)):
         sum -= initial_list[x - b]
         sum += initial_list[x]
-        final_list.append(sum)
-    for x in range(len(initial_list) - b, len(initial_list)):
-        sum -= initial_list[x - b]
         final_list.append(sum)
     return final_list
 
